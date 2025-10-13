@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КиноПоиск - Кино ва сериаллар</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .movie-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .star-rating {
+            color: #fbbf24;
+        }
+        .genre-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-full">
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-orange-500">🎬 КиноПоиск</h1>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#" class="hover:text-orange-400 transition-colors">Фильмлар</a>
+                        <a href="#" class="hover:text-orange-400 transition-colors">Сериаллар</a>
+                        <a href="#" class="hover:text-orange-400 transition-colors">Рейтинг</a>
+                        <a href="#" class="hover:text-orange-400 transition-colors">Янгиликлар</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Кино қидириш..." 
+                               class="bg-gray-700 text-white px-4 py-2 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <button onclick="searchMovies()" class="absolute right-2 top-2 text-gray-400 hover:text-white">
+                            🔍
+                        </button>
+                    </div>
+                    <button class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors">Кириш</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-900 py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-5xl font-bold mb-6">Энг яхши киноларни топинг</h2>
+            <p class="text-xl mb-8 text-gray-300">Миллионлаб кино ва сериаллар, рейтинглар ва шархлар</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="showSection('popular')" class="bg-orange-600 hover:bg-orange-700 px-8 py-3 rounded-lg text-lg font-semibold transition-colors">
+                    Машҳур киноларни кўриш
+                </button>
+                <button onclick="showSection('new')" class="border-2 border-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-lg text-lg font-semibold transition-colors">
+                    Янги чиққанлар
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="bg-gray-800 py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <span class="font-semibold">Фильтр:</span>
+                    <select id="genreFilter" onchange="filterMovies()" class="bg-gray-700 text-white px-3 py-2 rounded">
+                        <option value="">Барча жанрлар</option>
+                        <option value="action">Жанговар</option>
+                        <option value="comedy">Комедия</option>
+                        <option value="drama">Драма</option>
+                        <option value="horror">Қўрқинчли</option>
+                        <optionvalue="romanc
+="romance">Р
+омантик</option>
+                    </select>
+                    <select id="yearFilter" onchange="filterMovies()" class="bg-gray-700 text-white px-3 py-2 rounded">
+                        <option value="">Барча йиллар</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span>Сортировка:</span>
+                    <select id="sortFilter" onchange="sortMovies()" class="bg-gray-700 text-white px-3 py-2 rounded">
+                        <option value="rating">Рейтинг бўйича</option>
+                        <option value="year">Йил бўйича</option>
+                        <option value="name">Ном бўйича</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Movies Grid -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h3 id="sectionTitle" class="text-3xl font-bold">Машҳур киноларr</h3>
+            <div class="flex space-x-2">
+                <button onclick="changeView('grid')" id="gridBtn" class="bg-orange-600 px-4 py-2 rounded">Тўр</button>
+                <button onclick="changeView('list')" id="listBtn" class="bg-gray-600 px-4 py-2 rounded">Рўйхат</button>
+            </div>
+        </div>
+
+        <div id="moviesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Movies will be populated by JavaScript -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center mt-12 space-x-2">
+            <button onclick="changePage(-1)" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">← Олдинги</button>
+            <span id="pageInfo" class="px-4 py-2">1 / 5</span>
+            <button onclick="changePage(1)" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">Кейинги →</button>
+        </div>
+    </main>
+
+    <!-- Movie Modal -->
+    <div id="movieModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center">
+        <div class="bg-gray-800 rounded-lg max-w-2xl w-full mx-4 max-h-full overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white text-2xl">×</button>
+                </div>
+                <div id="modalContent" class="space-y-4">
+                    <!-- Modal content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample movie data
+        const movies = [
+            {
+                id: 1,
+                title: "Мстители: Финал",
+                year: 2023,
+                genre: "action",
+                rating: 8.9,
+                duration: "181 мин",
+                description: "Супергероялар учун охирги жанг. Таносни мағлуб этиш учун барча кучларини бирлаштирадилар.",
+                director: "Руссо ака-укалар",
+                cast: "Роберт Дауни мл., Крис Эванс, Скарлетт Йоханссон"
+            },
+            {
+                id: 2,
+                title: "Интерстеллар",
+                year: 2022,
+                genre: "drama",
+                rating: 9.1,
+                duration: "169 мин",
+                description: "Кўчманчи фермер ва собиқ НАСА учувчиси инсониятни қутқариш учун космосга саёҳат қилади.",
+                director: "Кристофер Нолан",
+                cast: "Мэттью МакКонахи, Энн Хэтэуэй, Джессика Честейн"
+            },
+            {
+                id: 3,
+                title: "Жокер",
+                year: 2021,
+                genre: "drama",
+                rating: 8.7,
+                duration: "122 мин",
+description: "Комик Артур Флекнинг Готам шаҳридаги энг хавфли жиноятчига айланиш ҳикояси.",
+                director: "Тодд Филлипс",
+                cast: "Хоакин Феникс, Роберт Де Ниро, Зази Битц"
+            },
+            {
+                id: 4,
+                title: "Паразитлар",
+                year: 2024,
+                genre: "horror",
+                rating: 8.8,
+                duration: "132 мин",
+                description: "Кореялик кино. Кам таъминланган оила бой оилага ишга кириб, кутилмаган воқеалар юз беради.",
+                director: "Бон Жун-хо",
+                cast: "Сон Ган-хо, Ли Сон-гюн, Чо Ё-жон"
+            },
+            {
+                id: 5,
+                title: "Ла-Ла Ленд",
+                year: 2023,
+                genre: "romance",
+                rating: 8.3,
+                duration: "128 мин",
+                description: "Лос-Анжелесда яшовчи актриса ва жаз мусиқачисининг муҳаббат ҳикояси.",
+                director: "Дэмиен Чазелл",
+                cast: "Райан Гослинг, Эмма Стоун"
+            },
+            {
+                id: 6,
+                title: "Дедпул",
+                year: 2022,
+                genre: "comedy",
+                rating: 8.1,
+                duration: "108 мин",
+                description: "Ноодатий супергерой ўзининг кулги ва жанговар усулларини кўрсатади.",
+                director: "Тим Миллер",
+                cast: "Райан Рейнолдс, Морена Баккарин"
+            }
+        ];
+
+        let currentMovies = [...movies];
+        let currentPage = 1;
+        let moviesPerPage = 8;
+        let currentView = 'grid';
+
+        function renderMovies() {
+            const container = document.getElementById('moviesContainer');
+            const startIndex = (currentPage - 1) * moviesPerPage;
+            const endIndex = startIndex + moviesPerPage;
+            const moviesToShow = currentMovies.slice(startIndex, endIndex);
+
+            if (currentView === 'grid') {
+                container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
+                container.innerHTML = moviesToShow.map(movie => `
+                    <div class="movie-card bg-gray-800 rounded-lg overflow-hidden cursor-pointer" onclick="openModal(${movie.id})">
+                        <div class="h-64 bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                            <span class="text-4xl">🎬</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">${movie.title}</h3>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-400">${movie.year}</span>
+                                <div class="flex items-center">
+                                    <span class="star-rating">⭐</span>
+                                    <span class="ml-1 font-semibold">${movie.rating}</span>
+                                </div>
+                            </div>
+                            <span class="genre-tag text-xs px-2 py-1 rounded text-white">${getGenreName(movie.genre)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.className = 'space-y-4';
+                container.innerHTML = moviesToShow.map(movie => `
+                    <div class="movie-card bg-gray-800 rounded-lg p-4 flex items-center space-x-4 cursor-pointer" onclick="openModal(${movie.id})">
+                        <div class="w-16 h-24 bg-gradient-to-br from-purple-600 to-blue-600 rounded flex items-center justify-center">
+                            <span class="text-2xl">🎬</span>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-xl mb-1">${movie.title}</h3>
+                            <p class="text-gray-400 mb-2">${movie.description.substring(0, 100)}...</p>
+                            <div class="flex items-center space-x-4">
+-x-4">
+                                <span class="text-gray-400">${movie.year}</span>
+                                <span class="genre-tag text-xs px-2 py-1 rounded text-white">${getGenreName(movie.genre)}</span>
+                                <div class="flex items-center">
+                                    <span class="star-rating">⭐</span>
+                                    <span class="ml-1 font-semibold">${movie.rating}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updatePagination();
+        }
+
+        function getGenreName(genre) {
+            const genres = {
+                'action': 'Жанговар',
+                'comedy': 'Комедия',
+                'drama': 'Драма',
+                'horror': 'Қўрқинчли',
+                'romance': 'Романтик'
+            };
+            return genres[genre] || genre;
+        }
+
+        function searchMovies() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            currentMovies = movies.filter(movie => 
+                movie.title.toLowerCase().includes(searchTerm) ||
+                movie.description.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderMovies();
+        }
+
+        function filterMovies() {
+            const genreFilter = document.getElementById('genreFilter').value;
+            const yearFilter = document.getElementById('yearFilter').value;
+            
+            currentMovies = movies.filter(movie => {
+                const genreMatch = !genreFilter || movie.genre === genreFilter;
+                const yearMatch = !yearFilter || movie.year.toString() === yearFilter;
+                return genreMatch && yearMatch;
+            });
+            
+            currentPage = 1;
+            renderMovies();
+        }
+
+        function sortMovies() {
+            const sortBy = document.getElementById('sortFilter').value;
+            
+            currentMovies.sort((a, b) => {
+                switch(sortBy) {
+                    case 'rating':
+                        return b.rating - a.rating;
+                    case 'year':
+                        return b.year - a.year;
+                    case 'name':
+                        return a.title.localeCompare(b.title);
+                    default:
+                        return 0;
+                }
+            });
+            
+            renderMovies();
+        }
+
+        function changeView(view) {
+            currentView = view;
+            document.getElementById('gridBtn').className = view === 'grid' ? 'bg-orange-600 px-4 py-2 rounded' : 'bg-gray-600 px-4 py-2 rounded';
+            document.getElementById('listBtn').className = view === 'list' ? 'bg-orange-600 px-4 py-2 rounded' : 'bg-gray-600 px-4 py-2 rounded';
+            renderMovies();
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(currentMovies.length / moviesPerPage);
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderMovies();
+            }
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(currentMovies.length / moviesPerPage);
+            document.getElementById('pageInfo').textContent = `${currentPage} / ${totalPages}`;
+        }
+
+        function openModal(movieId) {
+            const movie = movies.find(m => m.id === movieId);
+            if (!movie) return;
+
+            document.getElementById('modalTitle').textContent = movie.title;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-32 h-48 bg-gradient-to-br from-purple-600 to-blue-600 rounded flex items-center justify-center">
+                        <span class="text-4xl">🎬</span>
+                    </div>
+                    <div
+class="flex-1">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="text-gray-400">${movie.year}</span>
+                            <span class="text-gray-400">${movie.duration}</span>
+                            <div class="flex items-center">
+                                <span class="star-rating">⭐</span>
+                                <span class="ml-1 font-semibold text-lg">${movie.rating}</span>
+                            </div>
+                        </div>
+                        <span class="genre-tag text-sm px-3 py-1 rounded text-white">${getGenreName(movie.genre)}</span>
+                    </div>
+                </div>
+                <p class="text-gray-300 mb-4">${movie.description}</p>
+                <div class="space-y-2">
+                    <p><strong>Режиссёр:</strong> ${movie.director}</p>
+                    <p><strong>Актёрлар:</strong> ${movie.cast}</p>
+                </div>
+                <div class="flex space-x-4 mt-6">
+                    <button class="bg-orange-600 hover:bg-orange-700 px-6 py-2 rounded-lg transition-colors">
+                        ▶️ Кўриш
+                    </button>
+                    <button class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg transition-colors">
+                        ❤️ Севимлиларга қўшиш
+                    </button>
+                    <button class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg transition-colors">
+                        📝 Шарҳ ёзиш
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('movieModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('movieModal').classList.add('hidden');
+        }
+
+        function showSection(section) {
+            if (section === 'popular') {
+                currentMovies = movies.filter(movie => movie.rating >= 8.5);
+                document.getElementById('sectionTitle').textContent = 'Машҳур киноларr';
+            } else if (section === 'new') {
+                currentMovies = movies.filter(movie => movie.year >= 2023);
+                document.getElementById('sectionTitle').textContent = 'Янги чиққанлар';
+            }
+            currentPage = 1;
+            renderMovies();
+        }
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMovies();
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById('movieModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        renderMovies();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98de9e68014c7049',t:'MTc2MDM1NjIyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
